@@ -1,9 +1,9 @@
 
 require("dotenv").config()
 const express=require("express")
-const connect = require("../Config/config")
-const userRoute=require("../Routes/user.route")
-const todoRoute=require("../Routes/todo.route")
+const connect = require("./Config/config")
+const userRoute=require("./Routes/user.route")
+const todoRoute=require("./Routes/todo.route")
 
 const app=express()
 const cors=require("cors")
