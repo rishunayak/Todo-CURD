@@ -4,6 +4,8 @@ import { useState } from 'react'
 import axios from "axios"
 import { Link } from 'react-router-dom'
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux'
+import { userRegister } from '../Redux/Auth/action'
 
 const Register = () => {
     const navigate = useNavigate();
@@ -13,14 +15,16 @@ const Register = () => {
         password:"",
         age:""
     }
+    const [buttonLoad,setButtonLoad]=useState(false)
     const toast = useToast()
     const [register,setRegister]=useState(initalValue)
+    const dispatch=useDispatch()
 
     const handleRegister=()=>
     {
-        console.log(typeof register.age)
+      
         register.age=+register.age
-        console.log(register)
+        setButtonLoad(true)
         if(register.fname==="" || register.email==="" || register.password==="" || register.age==="")
         {
             toast({
@@ -33,17 +37,18 @@ const Register = () => {
         }
         else
         {
-            axios.post("http://localhost:3000/users/register",register).then((r)=>{
-            if(r.data.msg)
+            dispatch(userRegister(register)).then((r)=>{
+            if(r.payload.status==1)
             {
                 toast({
                     title: 'Account created.',
-                    description: r.data.msg,
+                    description: r.payload.msg,
                     status: 'success',
                     duration: 9000,
                     isClosable: true,
                    });
                    setRegister(initalValue)
+                   setRegister(false)
                    navigate("/login");
 
 
@@ -53,25 +58,22 @@ const Register = () => {
                 
                 toast({
                     title: 'Account creating Failed.',
-                    description: r.data,
+                    description: r.payload,
                     status: 'error',
                     duration: 9000,
                     isClosable: true,
                    })
+                   setRegister(false)
             }
           })
         }
-        
+        setButtonLoad(false)
     }
 
   return (
     <Box >
 
-        <Flex w="100%" justifyContent={["space-between","space-around","space-around"]} p={["20px 10px","20px 0px",]} boxShadow="2xl">
-            <Box><Link to={"/"}><Button bg={"teal"} color="white" _hover={{bg:"red"}}>Go Back</Button></Link></Box>
-            <Box fontSize={"30px"} fontWeight="bold" color={"blue.500"}>SignUp Page</Box>
-            <Box><Link to="/login"><Button bg={"teal"} color="white" _hover={{bg:"red"}}>Login</Button></Link></Box>
-         </Flex>
+        
      
       <Box w={["90%","50%","50%","30%"]} m="auto" display="grid" gap="20px" boxShadow="2xl" p="40px" borderRadius="16px" mt="50px">
         <Heading textAlign="center">Register Now</Heading>
@@ -79,7 +81,7 @@ const Register = () => {
         <Input type="number" placeholder="Enter Age" value={register.age} onChange={(e)=>setRegister({...register,age:(e.target.value)})}/>
         <Input  type="email" placeholder="Enter Email" value={register.email} onChange={(e)=>setRegister({...register,email:e.target.value})}/>
         <Input type="password" placeholder="Enter Password" value={register.password} onChange={(e)=>setRegister({...register,password:e.target.value})}/>
-        <Button w="100%" onClick={handleRegister} bg={"teal"} color="white" _hover={{bg:"red"}}>Register</Button>
+        <Button w="100%" isLoading={buttonLoad} onClick={handleRegister} bg={"teal"} color="white" _hover={{bg:"red"}}>Register</Button>
       </Box>
     </Box>
   )

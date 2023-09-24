@@ -1,7 +1,12 @@
-import { Box, Button, Center, Flex, Heading, Input, useToast } from '@chakra-ui/react'
+import { Box, Button, Center, Checkbox, Flex, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import axios from 'axios'
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React from 'react'
+import { useState } from 'react'
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { patchTodo, postTodo } from '../Redux/Todo/action'
+
 
 const AddTodo = () => {
    
@@ -16,68 +21,77 @@ const AddTodo = () => {
     const initValue={title:"",status:false}
     const [task,setTask]=useState(initValue)
 
-    const addTask=()=>
-    {
-       if(task.title==="")
+
+
+
+    const OverlayOne = () => (
+      <ModalOverlay
+        bg='blackAlpha.300'
+        backdropFilter='blur(10px) hue-rotate(90deg)'
+      />
+    )
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const [overlay, setOverlay] = React.useState(<OverlayOne />)
+    const [title,setTitle]=useState("")
+    const dispatch=useDispatch()
+
+   const handleAdd=()=>
+   {
+     dispatch(postTodo({title,status:false})).then((r)=>
+     {
+       if(r.payload.status==1)
        {
         toast({
-            title: 'Task',
-            description: "Please Enter the task Name first",
-            status: 'error',
-            duration: 9000,
-            isClosable: true,
-          });
+          title: 'Task',
+          description: r.payload.msg,
+          status: 'success',
+          duration: 9000,
+          isClosable: true,
+        });
+        onClose()
        }
        else
        {
-         
-        axios.post("http://localhost:3000/todos/addTodo",task,{headers:{token:localStorage.getItem("token")}}).then((r)=>
-        {
-            if(r.data.msg)
-            {
-                toast({
-                    title: 'Task',
-                    description: r.data.msg,
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                  });
-            }
-            else
-            {
-                console.log(localStorage.getItem("token"))
-                toast({
-                    title: 'Task',
-                    description: r.data,
-                    status: 'error',
-                    duration: 9000,
-                    isClosable: true,
-                  });
-            }
-        })
-      
-
+        toast({
+          title: 'Task',
+          description: r.data,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
        }
-  
-       setTask(initValue)
-        
-    }
+     })
+   }
     
   return (
     <>
-         <Flex w="100%" justifyContent={["space-between","space-around","space-around"]} p={["20px 10px","20px 0px",]} boxShadow="2xl">
-            <Box><Link to={"/todo"}><Button bg={"teal"} color="white" _hover={{bg:"red"}}>Go Back</Button></Link></Box>
-            <Box fontSize={"30px"} fontWeight="bold" color={"blue.500"}>Add Todos</Box>
-            <Box><Link to="/login"><Button bg={"teal"} color="white" _hover={{bg:"red"}} onClick={handleLogout}>Logout</Button></Link></Box>
-         </Flex>
-
-         <Center alignItems={"center"} mt="70px">
-           <Box w={["90%","50%","50%","30%"]} m="auto" display="grid" gap="20px" boxShadow="2xl" p="40px" borderRadius="16px">
-             <Heading textAlign="center">Todo</Heading>
-             <Input  type="text" placeholder="Enter Your Todo" value={task.title} onChange={(e)=>setTask({...task,title:e.target.value})}/>
-             <Button w="100%" onClick={addTask} bg={"teal"} color="white" _hover={{bg:"red"}}>Add Todo</Button>
-           </Box>
-         </Center>
+        <>
+      <Button
+        onClick={() => {
+          setOverlay(<OverlayOne />)
+          onOpen()
+        }}
+        colorScheme='blue'
+      >
+        Add Todo
+      </Button>
+      
+      <Modal isCentered isOpen={isOpen} onClose={onClose}>
+        {overlay}
+        <ModalContent>
+          <ModalHeader>Edit Todo</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input type='text' placeholder='Enter Task Name' value={title} onChange={(e)=>setTitle(e.target.value)}/>
+            
+          </ModalBody>
+          <ModalFooter gap={"10px"}>
+            <Button colorScheme='blue' onClick={handleAdd}>Submit</Button>
+            <Button onClick={onClose}>Close</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
         
 
     

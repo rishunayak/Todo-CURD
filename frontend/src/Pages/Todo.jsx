@@ -1,72 +1,83 @@
-import { Box, Button, Flex, Table, Tbody, Td, Th, Tr, useToast } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Heading, Table, Tbody, Td, Th, Tr, useToast } from '@chakra-ui/react'
 import axios from 'axios'
 import React, { useState } from 'react'
 import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
+import { deleteTodo, getTodo, patchTodo } from '../Redux/Todo/action'
+import EditTodo from './EditTodo'
+import AddTodo from './AddTodo'
 
 const Todo = () => {
    
-    const [notification,setNotification]=useState(0)
+   
     const toast = useToast()
     const navigate=useNavigate()
+    const dispatch=useDispatch()
     const handleLogout=()=>
     {
-        localStorage.removeItem("token")
+        sessionStorage.removeItem("token")
         navigate("/login");
     }
 
-    const [todos,setTodos]=useState([]);
+
+
+    const {isLoading,isError,todos}=useSelector((store)=>store.TodoReducer)
+
     useEffect(()=>
     {
-        axios.get("http://localhost:3000/todos",{headers:{token:localStorage.getItem("token")}}).then(r=>setTodos(r.data))
-    },[notification])
+        dispatch(getTodo())
+        
+    },[])
+  
 
     const handleUpdate=(task)=>
     {
-        task.status=!task.status
-        axios.patch(`http://localhost:3000/todos/update/${task._id}`,task,{headers:{token:localStorage.getItem("token")}}).then(r=>{
-         if(r.data.msg)
-         {
-            toast({
-                title: 'Task',
-                description: r.data.msg,
-                status: 'success',
-                duration: 9000,
-                isClosable: true,
-              });setNotification(Math.random())
-         }
-         else
-         {
-            toast({
-                title: 'Task Not added',
-                description: "Server Error",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-              });
-         }
-           
-        })
+        task={...task,status:!task.status}
+        dispatch(patchTodo(task)).then(r=>{
+        
+            if(r.msg.status==1)
+            {
+               toast({
+                   title: 'Task',
+                   description: r.msg.msg,
+                   status: 'success',
+                   duration: 9000,
+                   isClosable: true,
+                 });
+              
+            }
+            else
+            {
+               toast({
+                   title: 'Task Not added',
+                   description: "Server Error",
+                   status: 'error',
+                   duration: 9000,
+                   isClosable: true,
+                 });
+            }
+              
+           })
     }
 
-    const handleEdit=(task)=>
-    {
-       navigate(`/edit/${task._id}`);
-    }
 
-    const handleDelete=(task)=>
+
+    const handleDelete=(id)=>
     {
-        axios.delete(`http://localhost:3000/todos/update/${task._id}`,{headers:{token:localStorage.getItem("token")}}).then(r=>{
-            
-        if(r.data.msg)
+       
+        dispatch(deleteTodo(id)).then(r=>{
+            console.log(r)
+        if(r.msg.status==1)
         {
             toast({
                 title: 'Task',
-                description: r.data.msg,
+                description: r.msg.msg,
                 status: 'success',
                 duration: 9000,
                 isClosable: true,
-              });setNotification(Math.random())
+              });
+
         }
         else
         {
@@ -85,13 +96,10 @@ const Todo = () => {
 
   return (
     <>
-         <Flex w="100%" justifyContent={["space-between","space-around","space-around"]} p={["20px 10px","20px 0px",]} boxShadow="2xl">
-            <Box><Link to={"/addTodo"}><Button bg={"teal"} color="white" _hover={{bg:"red"}}>Add Todo</Button></Link></Box>
-            <Box fontSize={"30px"} fontWeight="bold" color={"blue.500"}>Your Todos</Box>
-            <Box><Link to="/addTodo"><Button bg={"teal"} color="white" _hover={{bg:"red"}} onClick={handleLogout}>Logout</Button></Link></Box>
-         </Flex>
 
-         <Table mt="50px" >
+       <Center mt={"80px"}><AddTodo/></Center>       
+       { todos?.length==0?<Center><Heading mt={"100px"}>No Todo Found</Heading></Center>:""}
+         <Table mt="50px" display={todos?.length==0?"none":"block"}>
             <Tbody >
                 <Th textAlign={"center"}>S.No</Th>
                 <Th textAlign={"center"}>Title</Th>
@@ -99,13 +107,15 @@ const Todo = () => {
                 <Th textAlign={"center"}>Edit</Th>
                 <Th textAlign={"center"}>Delete</Th>
             </Tbody>
+
+           
             {todos?.map((ele,i)=>
             {return <Tr key={i}>
                 <Td textAlign={"center"}>{i+1}</Td>
                 <Td textAlign={"center"}>{ele.title}</Td>
                 <Td textAlign={"center"}>{ele.status?<Button onClick={()=>handleUpdate(ele)}>Completed</Button>:<Button onClick={()=>handleUpdate(ele)}>Not Completed</Button>}</Td>
-                <Td textAlign={"center"}><Button onClick={()=>handleEdit(ele)}>Edit</Button></Td>
-                <Td textAlign={"center"}><Button onClick={()=>handleDelete(ele)}>Delete</Button></Td>
+                <Td textAlign={"center"}><EditTodo todo={ele}/></Td>
+                <Td textAlign={"center"}><Button onClick={()=>handleDelete(ele._id)}>Delete</Button></Td>
             </Tr>}
             )}
          </Table>

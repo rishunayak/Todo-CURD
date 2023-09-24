@@ -23,28 +23,15 @@ app.get("/",async(req,res)=>
      }            
    
 })
-app.get("/edit/:id",async(req,res)=>
-{
-     const id=req.params.id
-     try
-     {
-        const data=await Todo.findOne({_id:id})
-        res.send(data)
-     }
-     catch(e)
-     {
-        res.send(e)
-     }            
-   
-})
 
-app.patch("/edit/:id",async(req,res)=>
+
+app.patch("/:id",async(req,res)=>
 {
      const id=req.params.id
      try
      {
         const data=await Todo.findOneAndUpdate({_id:id},req.body)
-        res.send({msg:"Todo Updated Successfully"})
+        res.status(200).send({msg:"Todo Updated Successfully",status:1})
      }
      catch(e)
      {
@@ -53,13 +40,17 @@ app.patch("/edit/:id",async(req,res)=>
    
 })
 
-app.post("/addTodo",async(req,res)=>
+app.post("/",async(req,res)=>
 {
 
     try
     {
-        await Todo.create(req.body)
-        res.send({msg:"New Task is Added"})
+        const newTodo=new Todo(req.body)
+        await newTodo.save().then((todo)=>
+        {
+            return res.send({msg:"added Successfully",todo,status:1})
+        })
+
     }
     catch(e)
     {
@@ -69,30 +60,15 @@ app.post("/addTodo",async(req,res)=>
 })
 
 
-app.patch("/update/:id",async(req,res)=>
-{
-    const id=req.params.id
-
-    try
-    {
-         await Todo.findOneAndUpdate({_id:id},req.body)
-         res.send({msg:"Task Updated Successfull"})
-    }
-    catch(e)
-    {
-        res.send(e)
-    } 
-
-})
 
 
-app.delete("/update/:id",async(req,res)=>
+app.delete("/:id",async(req,res)=>
 {
     const id=req.params.id
     try
     {
         await Todo.findOneAndDelete({_id:id})
-        res.send({msg:"Task Deleted Successfull"})
+        res.send({msg:"Task Deleted Successfull",status:1})
     }
     catch(e)
     {

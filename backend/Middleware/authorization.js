@@ -3,10 +3,10 @@ const jwt=require("jsonwebtoken")
 const auth=(req,res,next)=>
 {
     const  token=req.headers.token
+   
     jwt.verify(token, 'auth', function(err, decoded) {
         if(err)
         {
-            console.log(err,decoded)
             res.send("Please Login")
         }
         else

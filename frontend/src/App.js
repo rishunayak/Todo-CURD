@@ -8,17 +8,17 @@ import Todo from './Pages/Todo';
 import AddTodo from './Pages/AddTodo';
 import EditTodo from './Pages/EditTodo';
 import Auth from './Auth/Auth';
+import Navbar from './Pages/Navbar';
 
 function App() {
   return (
     <>
+    <Navbar/>
      <Routes>
       <Route path='/' element={<Home/>}/>
       <Route path='/register' element={<Register/>}/>
       <Route path='/login' element={<Login/>}/>
       <Route path='/todo' element={<Auth><Todo/></Auth>}/>
-      <Route path="/addTodo" element={<AddTodo/>}/>
-      <Route path='/edit/:id' element={<EditTodo/>}/>
      </Routes>
     </>
   );

@@ -31,7 +31,7 @@ app.post("/register",async(req,res)=>
                     try
                     {
                         await User.create({fname,email,age,password:hashPassword}) 
-                        res.send({msg:"Registered Successfully"})
+                        res.send({msg:"Registered Successfully",status:1})
                     }
                     catch(e)
                     {
@@ -47,7 +47,7 @@ app.post("/register",async(req,res)=>
     catch(e)
     {
         res.send(e)
-        console.log(e)
+     
     }
 
 })
@@ -65,7 +65,7 @@ app.post("/login",async(req,res)=>
               if(result)
               {
                 const token=jwt.sign({id:exist._id},"auth");
-                res.send({token:token})
+                res.status(200).send({token:token,user:{name:exist.fname,email:exist.email}})
               }
               else
               {
