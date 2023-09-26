@@ -26,13 +26,13 @@ const Navbar = () => {
          });
         nav("/")
     }
-
+ console.log(token,"f")
   return (
     <>
     <Flex justifyContent={"space-between"} p={["20px","20px","20px","20px 50px","20px 100px"]} alignItems={"center"} boxShadow={"2xl"}>
        <Link to="/"> <Heading>Todo App</Heading></Link>
        {
-        token!==""? <Text  fontSize={"18px"} fontWeight={700} _hover={{bg:"teal",color:"white",borderRadius:"6px"}} p={"7px 12px"}
+        token!=="" && token!=undefined? <Text  fontSize={"18px"} fontWeight={700} _hover={{bg:"teal",color:"white",borderRadius:"6px"}} p={"7px 12px"}
         onClick={handleLogout}
         ><Button bg={"none"} _hover={{bg:"teal",color:"white",borderRadius:"6px"}}>Logout</Button> </Text> :
          <Flex gap={"10px"} fontSize={"18px"} fontWeight={700}>

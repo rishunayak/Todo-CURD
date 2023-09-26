@@ -3,6 +3,7 @@ import axios from "axios"
 
 export const userLogin=(data)=>dispatch=>
 {
+    
     dispatch({type:GET_LOGIN_REQUEST})
     return axios.post("http://localhost:3000/users/login",data).then((r)=>dispatch({type:GET_LOGIN_SUCCESS,payload:r.data}))
     .catch((err)=>dispatch({type:GET_LOGIN_FAILURE}))

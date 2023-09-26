@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from "react-router-dom";
 import axios from "axios"
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { userLogin } from '../Redux/Auth/action';
 const Login = () => {
 
@@ -11,14 +11,15 @@ const Login = () => {
         email:"",
         password:""
     }
-    const [buttonLoad,setButtonLoad]=useState(false)
+
     const navigate = useNavigate();
     const toast = useToast()
     const [login,setLogin]=useState(initalValue)
     const dispatch=useDispatch()
+    const {isLoading}=useSelector((store)=>store.UserReducer)
     const handleLogin=()=>
     {
-       setButtonLoad(true)
+
        
         if(login.email==="" || login.password==="")
         {
@@ -33,7 +34,7 @@ const Login = () => {
         else
         {
           dispatch(userLogin(login)).then((r)=>{
-        
+
             if(r.payload.token)
             {
                 toast({
@@ -44,7 +45,7 @@ const Login = () => {
                     isClosable: true,
                   });
                   sessionStorage.setItem("token",r.payload.token);
-                  setButtonLoad(false)
+       
                   navigate("/todo")
                 
             }
@@ -62,7 +63,7 @@ const Login = () => {
             
             })
         }
-        setButtonLoad(false)
+
     }
 
   return (
@@ -74,7 +75,7 @@ const Login = () => {
              <Heading textAlign="center">Login Now</Heading>
              <Input  type="email" placeholder="Enter Email" value={login.email} onChange={(e)=>setLogin({...login,email:e.target.value})}/>
              <Input type="password" placeholder="Enter Password" value={login.password} onChange={(e)=>setLogin({...login,password:e.target.value})}/>
-             <Button isLoading={buttonLoad} w="100%" onClick={handleLogin} bg={"teal"} color="white" _hover={{bg:"red"}}>Login</Button>
+             <Button isLoading={isLoading} w="100%" onClick={handleLogin} bg={"teal"} color="white" _hover={{bg:"red"}}>Login</Button>
            </Box>
          </Center>
     </Box>

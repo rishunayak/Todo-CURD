@@ -4,7 +4,7 @@ import { useState } from 'react'
 import axios from "axios"
 import { Link } from 'react-router-dom'
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { userRegister } from '../Redux/Auth/action'
 
 const Register = () => {
@@ -15,7 +15,7 @@ const Register = () => {
         password:"",
         age:""
     }
-    const [buttonLoad,setButtonLoad]=useState(false)
+    const {isLoading}=useSelector((store)=>store.UserReducer)
     const toast = useToast()
     const [register,setRegister]=useState(initalValue)
     const dispatch=useDispatch()
@@ -24,7 +24,7 @@ const Register = () => {
     {
       
         register.age=+register.age
-        setButtonLoad(true)
+    
         if(register.fname==="" || register.email==="" || register.password==="" || register.age==="")
         {
             toast({
@@ -34,6 +34,16 @@ const Register = () => {
                 duration: 9000,
                 isClosable: true,
               })
+        }
+        else if(register.password.length>=8)
+        {
+          toast({
+            title: 'Account created Failed.',
+            description: "Password must be length of 8 or above",
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          })
         }
         else
         {
@@ -67,7 +77,7 @@ const Register = () => {
             }
           })
         }
-        setButtonLoad(false)
+ 
     }
 
   return (
@@ -81,7 +91,7 @@ const Register = () => {
         <Input type="number" placeholder="Enter Age" value={register.age} onChange={(e)=>setRegister({...register,age:(e.target.value)})}/>
         <Input  type="email" placeholder="Enter Email" value={register.email} onChange={(e)=>setRegister({...register,email:e.target.value})}/>
         <Input type="password" placeholder="Enter Password" value={register.password} onChange={(e)=>setRegister({...register,password:e.target.value})}/>
-        <Button w="100%" isLoading={buttonLoad} onClick={handleRegister} bg={"teal"} color="white" _hover={{bg:"red"}}>Register</Button>
+        <Button w="100%" isLoading={isLoading} onClick={handleRegister} bg={"teal"} color="white" _hover={{bg:"red"}}>Register</Button>
       </Box>
     </Box>
   )
